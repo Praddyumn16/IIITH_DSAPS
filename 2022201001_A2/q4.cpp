@@ -419,6 +419,42 @@ Node<T> *sortList(Node<T> *head)
     return mergeList(head, head2);
 }
 
+template <typename T>
+Node<T> *multiply_list(Node<T> *mat1, Node<T> *m2)
+{
+    Node<T> *result = NULL;
+    while (mat1)
+    {
+        Node<T> *mat2 = m2;
+        while (mat2)
+        {
+            if (mat1->col == mat2->col)
+            {
+                Node<T> *temp = result;
+                bool flag = false;
+                while (temp)
+                {
+                    if (temp->row == mat1->row && temp->col == mat2->row)
+                    {
+                        flag = true;
+                        temp->val += (mat1->val * mat2->val);
+                        break;
+                    }
+                    temp = temp->next;
+                }
+                if (!flag)
+                {
+                    Node<T> *newnode = new Node(mat1->row, mat2->row, mat1->val * mat2->val);
+                    insert_node(&result, newnode);
+                }
+            }
+            mat2 = mat2->next;
+        }
+        mat1 = mat1->next;
+    }
+    return result;
+}
+
 int main()
 {
 
@@ -604,12 +640,55 @@ int main()
             Node<int> *result = sortList(temp);
             cout << endl;
             cout << "Transpose Result:" << endl;
-
             print_list(result, m1, n1);
-            // test_print(result);
         }
         else
         {
+            Node<int> *mat1 = NULL;
+            int n1, m1;
+            cin >> n1 >> m1;
+            for (int i = 0; i < n1; i++)
+            {
+                for (int j = 0; j < m1; j++)
+                {
+                    int a;
+                    cin >> a;
+                    if (a != 0)
+                    {
+                        Node<int> *newnode = new Node(i, j, a);
+                        insert_node(&mat1, newnode);
+                    }
+                }
+            }
+
+            Node<int> *mat2 = NULL;
+            int n2, m2;
+            cin >> n2 >> m2;
+            for (int i = 0; i < n2; i++)
+            {
+                for (int j = 0; j < m2; j++)
+                {
+                    int a;
+                    cin >> a;
+                    if (a != 0)
+                    {
+                        Node<int> *newnode = new Node(i, j, a);
+                        insert_node(&mat2, newnode);
+                    }
+                }
+            }
+
+            if (m1 != n2)
+                cout << "Multiplication not possible" << endl;
+            else
+            {
+                mat2 = transpose_list(mat2);
+                mat2 = sortList(mat2);
+                Node<int> *result = multiply_list(mat1, mat2);
+                cout << endl;
+                cout << "Multiplication Result:" << endl;
+                print_list(result, n1, m2);
+            }
         }
     }
     return 0;
