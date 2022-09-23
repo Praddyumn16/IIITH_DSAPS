@@ -10,13 +10,6 @@ public:
 };
 
 template <typename T>
-class Node
-{
-    int row, col;
-    T val;
-};
-
-template <typename T>
 class sparseArray
 {
 public:
@@ -196,6 +189,236 @@ void print_arr(sparseArray<T> *res, int r, int c)
     }
 }
 
+template <typename T>
+class Node
+{
+public:
+    int row, col;
+    T val;
+    Node *next;
+
+    Node(int r, int c, T value)
+    {
+        row = r;
+        col = c;
+        val = value;
+        next = NULL;
+    }
+};
+
+template <typename T>
+void insert_node(Node<T> **mat, Node<T> *newnode)
+{
+    Node<T> *curr = *mat;
+
+    if (curr == NULL)
+        *mat = newnode;
+    else
+    {
+        while (curr->next != NULL)
+            curr = curr->next;
+        curr->next = newnode;
+    }
+}
+
+template <typename T>
+Node<T> *addition_list(Node<T> *mat1, Node<T> *mat2)
+{
+    Node<T> *result = NULL;
+
+    while (mat1 && mat2)
+    {
+        if (mat1->row == mat2->row && mat1->col == mat2->col)
+        {
+            Node<int> *newnode = new Node(mat1->row, mat1->col, mat1->val + mat2->val);
+            insert_node(&result, newnode);
+            mat1 = mat1->next;
+            mat2 = mat2->next;
+        }
+        else if (mat1->row < mat2->row)
+        {
+            Node<int> *newnode = new Node(mat1->row, mat1->col, mat1->val);
+            insert_node(&result, newnode);
+            mat1 = mat1->next;
+        }
+        else if (mat1->row > mat2->row)
+        {
+            Node<int> *newnode = new Node(mat2->row, mat2->col, mat2->val);
+            insert_node(&result, newnode);
+            mat2 = mat2->next;
+        }
+        else
+        {
+            if (mat1->col < mat2->col)
+            {
+                Node<int> *newnode = new Node(mat1->row, mat1->col, mat1->val);
+                insert_node(&result, newnode);
+                mat1 = mat1->next;
+            }
+            else
+            {
+                Node<int> *newnode = new Node(mat2->row, mat2->col, mat2->val);
+                insert_node(&result, newnode);
+                mat2 = mat2->next;
+            }
+        }
+    }
+
+    while (mat1)
+    {
+        Node<int> *newnode = new Node(mat1->row, mat1->col, mat1->val);
+        insert_node(&result, newnode);
+        mat1 = mat1->next;
+    }
+
+    while (mat2)
+    {
+        Node<int> *newnode = new Node(mat2->row, mat2->col, mat2->val);
+        insert_node(&result, newnode);
+        mat2 = mat2->next;
+    }
+    return result;
+}
+
+template <typename T>
+Node<T> *transpose_list(Node<T> *head)
+{
+    Node<T> *result = NULL;
+    while (head)
+    {
+        Node<int> *newnode = new Node(head->col, head->row, head->val);
+        insert_node(&result, newnode);
+        head = head->next;
+    }
+    return result;
+}
+
+template <typename T>
+void print_list(Node<T> *head, int r, int c)
+{
+    for (int i = 0; i < r; i++)
+    {
+        for (int j = 0; j < c; j++)
+        {
+            if (head->row == i && head->col == j)
+            {
+                cout << head->val << " ";
+                head = head->next;
+            }
+            else
+                cout << 0 << " ";
+        }
+        cout << endl;
+    }
+}
+
+template <typename T>
+void test_print(Node<T> *head)
+{
+    while (head)
+    {
+        cout << head->row << " " << head->col << " " << head->val << endl;
+        head = head->next;
+    }
+}
+
+template <typename T>
+Node<T> *mergeList(Node<T> *l1, Node<T> *l2)
+{
+
+    if (l1 == NULL)
+        return l2;
+    if (l2 == NULL)
+        return l1;
+
+    Node<T> *l3head;
+    if (l1->row < l2->row)
+    {
+        l3head = l1;
+        l1 = l1->next;
+    }
+    else if (l1->row > l2->row)
+    {
+        l3head = l2;
+        l2 = l2->next;
+    }
+    else
+    {
+        if (l1->col < l2->col)
+        {
+            l3head = l1;
+            l1 = l1->next;
+        }
+        else
+        {
+            l3head = l2;
+            l2 = l2->next;
+        }
+    }
+
+    Node<T> *l3tail = l3head;
+    while ((l1 != nullptr) && (l2 != nullptr))
+    {
+        if (l1->row < l2->row)
+        {
+            l3tail->next = l1;
+            l3tail = l3tail->next;
+            l1 = l1->next;
+        }
+        else if (l1->row > l2->row)
+        {
+            l3tail->next = l2;
+            l3tail = l3tail->next;
+            l2 = l2->next;
+        }
+        else
+        {
+            if (l1->col < l2->col)
+            {
+                l3tail->next = l1;
+                l3tail = l3tail->next;
+                l1 = l1->next;
+            }
+            else
+            {
+                l3tail->next = l2;
+                l3tail = l3tail->next;
+                l2 = l2->next;
+            }
+        }
+    }
+
+    if (l1 == NULL)
+        l3tail->next = l2;
+    if (l2 == NULL)
+        l3tail->next = l1;
+
+    return l3head;
+}
+
+template <typename T>
+Node<T> *sortList(Node<T> *head)
+{
+
+    if (head == NULL || head->next == NULL)
+        return head;
+
+    Node<T> *slow = head;
+    Node<T> *fast = head->next;
+    while (fast != NULL && fast->next != NULL)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    Node<T> *head2 = slow->next;
+    slow->next = NULL;
+
+    head = sortList(head);
+    head2 = sortList(head2);
+
+    return mergeList(head, head2);
+}
+
 int main()
 {
 
@@ -315,9 +538,75 @@ int main()
         cin >> operation;
         if (operation == 1)
         {
+            Node<int> *mat1 = NULL;
+            int n1, m1;
+            cin >> n1 >> m1;
+            for (int i = 0; i < n1; i++)
+            {
+                for (int j = 0; j < m1; j++)
+                {
+                    int a;
+                    cin >> a;
+                    if (a != 0)
+                    {
+                        Node<int> *newnode = new Node(i, j, a);
+                        insert_node(&mat1, newnode);
+                    }
+                }
+            }
+
+            Node<int> *mat2 = NULL;
+            int n2, m2;
+            cin >> n2 >> m2;
+            for (int i = 0; i < n2; i++)
+            {
+                for (int j = 0; j < m2; j++)
+                {
+                    int a;
+                    cin >> a;
+                    if (a != 0)
+                    {
+                        Node<int> *newnode = new Node(i, j, a);
+                        insert_node(&mat2, newnode);
+                    }
+                }
+            }
+            if (n1 != n2 || m1 != m2)
+                cout << "Addition not possible" << endl;
+            else
+            {
+                Node<int> *result = addition_list(mat1, mat2);
+                cout << endl;
+                cout << "Addition Result:" << endl;
+                print_list(result, n1, m1);
+            }
         }
         else if (operation == 2)
         {
+            Node<int> *mat1 = NULL;
+            int n1, m1;
+            cin >> n1 >> m1;
+            for (int i = 0; i < n1; i++)
+            {
+                for (int j = 0; j < m1; j++)
+                {
+                    int a;
+                    cin >> a;
+                    if (a != 0)
+                    {
+                        Node<int> *newnode = new Node(i, j, a);
+                        insert_node(&mat1, newnode);
+                    }
+                }
+            }
+
+            Node<int> *temp = transpose_list(mat1);
+            Node<int> *result = sortList(temp);
+            cout << endl;
+            cout << "Transpose Result:" << endl;
+
+            print_list(result, m1, n1);
+            // test_print(result);
         }
         else
         {
