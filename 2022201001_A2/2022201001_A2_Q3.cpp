@@ -30,6 +30,11 @@ public:
         root = insertnode(root, key);
     }
 
+    void delete (T key)
+    {
+        root = deletenode(root, key);
+    }
+
     bool search(T key)
     {
         return search(root, key);
