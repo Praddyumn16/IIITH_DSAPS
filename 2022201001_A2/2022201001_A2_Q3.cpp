@@ -30,7 +30,7 @@ public:
         root = insertnode(root, key);
     }
 
-    void delete (T key)
+    void _delete(T key)
     {
         root = deletenode(root, key);
     }
@@ -255,7 +255,7 @@ public:
 
     Node<T> *insertnode(Node<T> *root, int key)
     {
-        if (root == NULL)
+        if (!root)
         {
             Node<T> *newnode = new Node(key);
             return root = newnode;
@@ -304,6 +304,82 @@ public:
 
         return root;
     }
+
+    Node<T> *deletenode(Node<T> *root, int key)
+    {
+        if (!root)
+            return NULL;
+
+        if (root->val > key)
+        {
+            root->left = deletenode(root->left, key);
+            root->count = root->freq + count(root->left) + count(root->right);
+        }
+        else if (root->val < key)
+        {
+            root->right = deletenode(root->right, key);
+            root->count = root->freq + count(root->left) + count(root->right);
+        }
+        else
+        {
+            if (!root->left || !root->right)
+            {
+                Node<T> *temp;
+                if (!root->left)
+                    temp = root->right;
+                else
+                    temp = root->left;
+
+                if (!temp)
+                    temp = root, root = NULL;
+                else
+                    *root = *temp;
+
+                free(temp);
+            }
+            else
+            {
+                Node<T> *temp = root->right;
+                while (temp->left)
+                    temp = temp->left;
+                root->val = temp->val;
+                root->right = deletenode(root->right, temp->val);
+            }
+        }
+
+        if (!root)
+            return NULL;
+
+        root->height = 1 + max((root->left ? root->left->height : 0), (root->right ? root->right->height : 0));
+        root->count = root->freq + count(root->left) + count(root->right);
+
+        int diff = (root ? ((root->left ? root->left->height : 0) - (root->right ? root->right->height : 0)) : 0);
+
+        if (diff > 1)
+        {
+            int left_diff = (root->left ? ((root->left->left ? root->left->left->height : 0) - (root->left->right ? root->left->right->height : 0)) : 0);
+            if (left_diff >= 0)
+                return rotate_right(root);
+            else
+            {
+                root->left = rotate_left(root->left);
+                return rotate_right(root);
+            }
+        }
+        else if (diff < -1)
+        {
+            int right_diff = (root->right ? ((root->right->left ? root->right->left->height : 0) - (root->right->right ? root->right->right->height : 0)) : 0);
+            if (right_diff <= 0)
+                return rotate_left(root);
+            else
+            {
+                root->right = rotate_right(root->right);
+                return rotate_left(root);
+            }
+        }
+
+        return root;
+    }
 };
 
 template <typename T>
@@ -337,15 +413,18 @@ void printAVL(Node<T> *root, int depth)
 int main()
 {
     AVL<int> avl;
-    int arr[] = {1, 1, 2, 2, 2, 5};
+    int arr[] = {1, 1, 2, 2, 2, 3, 3, 4, 4, 7, 8, 9, 10, 10};
 
     for (int i : arr)
         avl.insert(i);
 
-    cout << avl.closest_element(1) << endl;
-    cout << avl.closest_element(3) << endl;
-    cout << avl.closest_element(4) << endl;
-    cout << avl.closest_element(80) << endl;
+    avl._delete(4);
+    avl._delete(7);
+
+    // cout << avl.closest_element(1) << endl;
+    // cout << avl.closest_element(3) << endl;
+    // cout << avl.closest_element(4) << endl;
+    // cout << avl.closest_element(80) << endl;
 
     // cout << avl.count_range(1, 6) << " ";
     // cout << avl.count_range(2, 3) << " ";
