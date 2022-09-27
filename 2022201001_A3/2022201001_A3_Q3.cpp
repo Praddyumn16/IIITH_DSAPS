@@ -1,6 +1,43 @@
 #include <iostream>
-#include <vector>
 using namespace std;
+
+template <typename T>
+class vector
+{
+public:
+    T *arr;
+    int curr_size, cap;
+
+    vector()
+    {
+        curr_size = 0;
+        cap = 2;
+        arr = new T[2];
+    }
+
+    void push_back(T data)
+    {
+
+        if (curr_size == cap)
+        {
+            T *temp = new T[2 * cap];
+            for (int i = 0; i < cap; i++)
+                temp[i] = arr[i];
+
+            delete[] arr;
+            cap *= 2;
+            arr = temp;
+        }
+
+        arr[curr_size] = data;
+        curr_size++;
+    }
+
+    int size()
+    {
+        return curr_size;
+    }
+};
 
 struct node
 {
@@ -104,7 +141,7 @@ int main()
             t.dfs(board, i, j, r, c, t.root, v);
 
     cout << v.size() << endl;
-    for (auto a : v)
-        cout << a << endl;
+    for (int i = 0; i < v.size(); i++)
+        cout << v.arr[i] << endl;
     return 0;
 }
